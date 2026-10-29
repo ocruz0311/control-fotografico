@@ -1,0 +1,11 @@
+{
+  "name": "control-fotografico-pozuzo",
+  "version": "1.0.0",
+  "description": "Sistema de Control Fotográfico y Documental en Tiempo Real con Notion API y Vercel/Cloudflare Pages",
+  "scripts": {
+    "start": "python local_server.py"
+  },
+  "keywords": ["notion", "powerquery", "civil-engineering", "dashboard"],
+  "author": "Ingeniería SE Pozuzo",
+  "license": "MIT"
+}

@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>Control Fotográfico y Documental en Tiempo Real | SE Pozuzo 500 kV</title>
+  <style>
+    :root {
+      --primary: #1E3A8A;
+      --primary-dark: #0F172A;
+      --primary-light: #3B82F6;
+      --accent: #059669;
+      --accent-hover: #047857;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --border: #E2E8F0;
+      --text: #1E293B;
+      --text-muted: #64748B;
+      --radius: 10px;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.06), 0 2px 4px -2px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
+      color: white;
+      padding: 18px 32px;
+      box-shadow: var(--shadow);
+    }
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .header-title h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-title p {
+      font-size: 0.85rem;
+      color: #94A3B8;
+      margin-top: 3px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 2px 4px rgba(5, 150, 105, 0.3);
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.25); }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.78rem;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover { background: var(--bg); }
+
+    .container {
+      max-width: 1400px;
+      margin: 20px auto;
+      padding: 0 24px;
+    }
+
+    /* KPI METRICS */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .metric-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .metric-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    .icon-blue { background: #EFF6FF; color: #2563EB; }
+    .icon-green { background: #ECFDF5; color: #059669; }
+    .icon-purple { background: #FAF5FF; color: #7C3AED; }
+    .icon-amber { background: #FFFBEB; color: #D97706; }
+    .metric-data h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      line-height: 1.1;
+    }
+    .metric-data p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* CONTROLS BAR */
+    .controls-bar {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .filters-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+    .search-box {
+      position: relative;
+      min-width: 240px;
+      flex: 1;
+      max-width: 340px;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 8px 12px 8px 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .search-box svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      color: var(--text-muted);
+    }
+    .select-filter {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* VIEW CONTROLS GROUP */
+    .view-controls-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn-group {
+      display: inline-flex;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .group-label {
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-right: 6px;
+      display: flex;
+      align-items: center;
+    }
+    .switch-btn {
+      padding: 7px 12px;
+      background: var(--surface);
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--text-muted);
+      transition: background 0.15s, color 0.15s;
+    }
+    .switch-btn.active {
+      background: #EFF6FF;
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .switch-btn:hover:not(.active) {
+      background: #F8FAFC;
+    }
+
+    .sync-status-bar {
+      margin-bottom: 14px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .pulse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 6px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .badge-blue { background: #DBEAFE; color: #1E40AF; }
+    .badge-green { background: #D1FAE5; color: #065F46; }
+    .badge-amber { background: #FEF3C7; color: #92400E; }
+    .badge-purple { background: #EDE9FE; color: #5B21B6; }
+    .badge-gray { background: #F1F5F9; color: #475569; }
+
+    /* CARDS GRID */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 18px;
+    }
+    .file-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      content-visibility: auto;
+      contain-intrinsic-size: 290px 330px;
+    }
+
+    /* CARD PREVIEW CONTAINER - ENHANCED FOR FIT / FILL */
+    .card-preview {
+      height: 195px;
+      background: #0B0F19;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+
+    /* OBJECT FIT BEHAVIOR (CONTAIN vs COVER) */
+    .card-preview img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      transition: transform 0.25s ease;
+    }
+    /* Mode 1: Ver imagen completa (sin recortes, contain) */
+    .cards-grid.mode-contain .card-preview img {
+      object-fit: contain;
+      background: #0B0F19;
+    }
+    /* Mode 2: Llenar todo el recuadro (cover) */
+    .cards-grid.mode-cover .card-preview img {
+      object-fit: cover;
+    }
+
+    .card-preview:hover img {
+      transform: scale(1.03);
+    }
+
+    .card-preview .view-hint {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(15, 23, 42, 0.75);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      backdrop-filter: blur(2px);
+    }
+
+    .card-preview .heavy-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(15, 23, 42, 0.85);
+      color: #F8FAFC;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .doc-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+    }
+    .doc-placeholder svg { width: 48px; height: 48px; }
+    .doc-placeholder.pdf { color: #DC2626; }
+    .doc-placeholder.excel { color: #16A34A; }
+    .doc-placeholder.aerial { color: #38BDF8; }
+
+    .card-body {
+      padding: 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .card-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+      line-height: 1.25;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-filename {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: Consolas, monospace;
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+    .card-footer {
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .table-container {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+      display: none;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    thead {
+      background: #F8FAFC;
+      border-bottom: 2px solid var(--border);
+    }
+    th {
+      padding: 10px 14px;
+      font-weight: 600;
+      color: var(--primary-dark);
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:hover td { background: #F8FAFC; }
+    .thumb-mini {
+      width: 42px;
+      height: 42px;
+      border-radius: 6px;
+      object-fit: contain;
+      background: #0B0F19;
+      cursor: pointer;
+    }
+    .doc-mini {
+      width: 42px;
+      height: 42px;
+      border-radius: 6px;
+      background: #F1F5F9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.68rem;
+    }
+
+    /* FULLSCREEN LIGHTBOX MODAL WITH FIT/FILL CONTROLS */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 14px;
+    }
+    .modal-overlay.active { display: flex; }
+    
+    .modal-box {
+      width: 96vw;
+      height: 94vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .modal-toolbar {
+      width: 100%;
+      height: 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      padding: 0 8px 10px 8px;
+      gap: 12px;
+    }
+
+    .modal-title-group {
+      flex: 1;
+      overflow: hidden;
+    }
+    .modal-title-group h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #F8FAFC;
+    }
+
+    .modal-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-toggle-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+    .modal-toggle-btn.active, .modal-toggle-btn:hover {
+      background: var(--primary-light);
+      border-color: var(--primary-light);
+    }
+
+    .modal-close-btn {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #FCA5A5;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .modal-close-btn:hover {
+      background: #EF4444;
+      color: white;
+    }
+
+    /* THE IMAGE STAGE (EL RECUADRO) */
+    .modal-stage {
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 50px);
+      background: #000000;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* MODES INSIDE MODAL STAGE */
+    .modal-stage img {
+      transition: all 0.2s ease;
+      display: block;
+    }
+    /* Mode A: Imagen completa sin recortar ningún borde */
+    .modal-stage.fit-contain img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+    /* Mode B: Ocupar todo el recuadro (fill 100%) */
+    .modal-stage.fit-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    /* Mode C: Llenar y estirar ancho/alto (fill frame) */
+    .modal-stage.fit-stretch img {
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-content">
+      <div class="header-title">
+        <h1>
+          <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          SISTEMA DE CONTROL FOTOGRÁFICO Y DOCUMENTAL EN TIEMPO REAL
+        </h1>
+        <p>Subestación Pozuzo 500 kV | Integración en Vivo vía Notion API REST</p>
+      </div>
+      <div class="header-actions">
+        <button id="btn-sync" class="btn btn-primary" onclick="syncNotionData()">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span id="btn-text">Actualizar en Tiempo Real</span>
+        </button>
+        <a href="https://app.notion.com/p/5f0da213a2b74056b9388ced7474496a" target="_blank" class="btn btn-secondary">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          Abrir en Notion
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    <!-- METRICS -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon icon-blue">📦</div>
+        <div class="metric-data">
+          <h3 id="metric-total">0</h3>
+          <p>Total de Entregables</p>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon icon-green">📷</div>
+        <div class="metric-data">
+          <h3 id="metric-photos">0</h3>
+          <p>Fotografías de Obra</p>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon icon-purple">📄</div>
+        <div class="metric-data">
+          <h3 id="metric-docs">0</h3>
+          <p>Informes y Cronogramas</p>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon icon-amber">⚡</div>
+        <div class="metric-data">
+          <h3 id="metric-status">18 Activos</h3>
+          <p>Sincronización al Día</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls-bar">
+      <div class="filters-group">
+        <div class="search-box">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" id="search-input" placeholder="Buscar por archivo, descripción o actividad..." oninput="applyFilters()">
+        </div>
+        <select id="activity-filter" class="select-filter" onchange="applyFilters()">
+          <option value="ALL">Todas las Actividades</option>
+        </select>
+      </div>
+
+      <div class="view-controls-group">
+        <!-- ENCUADRE DE IMAGEN: COMPLETA vs LLENAR RECUADRO -->
+        <div class="btn-group" title="Modo de encuadre en las tarjetas">
+          <button id="btn-fit-contain" class="switch-btn active" onclick="setCardFit('contain')" title="Ver la imagen completa sin recortar ningún detalle">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0 0l-5-5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+            Imagen Completa
+          </button>
+          <button id="btn-fit-cover" class="switch-btn" onclick="setCardFit('cover')" title="Llenar todo el recuadro de la tarjeta">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16v16H4V4z" />
+            </svg>
+            Llenar Recuadro
+          </button>
+        </div>
+
+        <!-- TIPO DE VISTA: TARJETAS vs TABLA -->
+        <div class="btn-group">
+          <button id="btn-grid" class="switch-btn active" onclick="switchView('grid')">Tarjetas</button>
+          <button id="btn-table" class="switch-btn" onclick="switchView('table')">Tabla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS INFO -->
+    <div class="sync-status-bar">
+      <div>
+        <span class="pulse-dot"></span>
+        <span id="sync-timestamp">Sincronizado con Notion</span>
+      </div>
+      <div>
+        <span id="filtered-count">Mostrando 0 registros</span>
+      </div>
+    </div>
+
+    <!-- GRID VIEW (Default: mode-contain para ver la imagen completa) -->
+    <div id="cards-container" class="cards-grid mode-contain"></div>
+
+    <!-- TABLE VIEW -->
+    <div id="table-container" class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 45px;">Ítem</th>
+            <th style="width: 60px;">Vista</th>
+            <th style="width: 100px;">Fecha</th>
+            <th style="width: 160px;">Actividad</th>
+            <th>Nombre de Archivo</th>
+            <th>Descripción</th>
+            <th style="width: 160px; text-align: center;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- LIGHTBOX MODAL EXPANDIDO -->
+  <div id="modal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-box">
+      
+      <!-- TOOLBAR SUPERIOR -->
+      <div class="modal-toolbar">
+        <div class="modal-title-group">
+          <h3 id="modal-title">Vista de Fotografía</h3>
+        </div>
+        
+        <div class="modal-actions">
+          <!-- BOTÓN 1: VER IMAGEN COMPLETA -->
+          <button id="modal-btn-contain" class="modal-toggle-btn active" onclick="setModalFit('contain')" title="Ver la imagen completa al 100% sin recortar nada">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0 0l-5-5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+            Imagen Completa
+          </button>
+          
+          <!-- BOTÓN 2: OCUPAR TODO EL RECUADRO -->
+          <button id="modal-btn-cover" class="modal-toggle-btn" onclick="setModalFit('cover')" title="Ocupar todo el recuadro de la pantalla">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16v16H4V4z" />
+            </svg>
+            Ocupar Todo el Recuadro
+          </button>
+
+          <!-- BOTÓN 3: PANTALLA COMPLETA INMERSIVA -->
+          <button class="modal-toggle-btn" onclick="toggleFullscreen()" title="Pantalla Completa Inmersiva">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8V3m0 0h5M3 3l6 6m12-6h-5m5 0v5m0-5l-6 6M3 16v5m0 0h5m-5 0l6-6m12 6l-6-6m6 6v-5m0 5h-5" />
+            </svg>
+            Pantalla Completa
+          </button>
+
+          <!-- DESCARGAR ORIGINAL -->
+          <a id="modal-download" href="#" target="_blank" class="btn btn-sm btn-primary" download>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Descargar
+          </a>
+          
+          <!-- CERRAR -->
+          <button class="modal-close-btn" onclick="closeModalDirect()">&times;</button>
+        </div>
+      </div>
+
+      <!-- ESCENARIO / RECUADRO DE IMAGEN -->
+      <div id="modal-stage" class="modal-stage fit-contain">
+        <img id="modal-img" src="" alt="Vista previa">
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const NOTION_API_KEY = "ntn_X97542535676iHXQYgrXowLiK88NK5HhqnSCWvqDmfq7M2";
+    const DATABASE_ID = "5f0da213a2b74056b9388ced7474496a";
+    
+    let records = [{"id": "40824566-18ff-802b-8fb3-e314c08cffe8", "actividad": "Reporte Semanal", "actColor": "purple", "archivo": "nodos dron olca_1.1.1.jpg", "descripcion": "prueba 03", "fecha": "2026-10-31", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/23d6ab89-481c-4232-aca1-862b51a78dba/nodos_dron_olca_1.1.1.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=ecb93642ef5014355085c9cecb30e6bac80353cb1661e9bb90ba3a5cc9f460e4&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/prueba-03-4082456618ff802b8fb3e314c08cffe8", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-8088-b860-ed8e4806ba6e", "actividad": "Control de Avance", "actColor": "orange", "archivo": "ChatGPT Image 15 sept 2026, 12_26_30 p.m..png", "descripcion": "imagen de pruebs", "fecha": "2026-10-29", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/dc9c97eb-0720-47f6-b5ac-0c50fbe9ca82/ChatGPT_Image_15_sept_2026_12_26_30_p.m..png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=9bcb86766d8a9a54114e8cf67cdb45408f4362f207e0c6eb05d891bfe3aa9acc&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/imagen-de-pruebs-4082456618ff8088b860ed8e4806ba6e", "ext": "png", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-80f9-9c73-cf6756a1058c", "actividad": "Reporte Semanal", "actColor": "purple", "archivo": "20250908_112142-Mejorado-NR copia.jpg", "descripcion": "imagen prueba 2.02", "fecha": "2026-10-28", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/3761740a-fc18-4990-82d1-4361e9fc60c1/20250908_112142-Mejorado-NR_copia.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=8d862169e549e216de31c694f182335197ada7236458fa8a59a193f7019cb90f&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/imagen-prueba-2-02-4082456618ff80f99c73cf6756a1058c", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-8123-9365-ea6bb20b8dd3", "actividad": "Control de Avance", "actColor": "orange", "archivo": "Avance sem 16.xlsx", "descripcion": "Control de Avance Semanal 16 (Excel) - Curva S y Cronograma", "fecha": "2025-02-17", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/cb2755dd-f14f-476c-bd1c-640607b33b81/Avance_sem_16.xlsx?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=f7f7b37b3c190c24c65df6deed5e5b0cbcdd02061ad0ea78f8626c8174f7375a&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Control-de-Avance-Semanal-16-Excel-Curva-S-y-Cronograma-4082456618ff81239365ea6bb20b8dd3", "ext": "xlsx", "isImage": false, "isPdf": false, "isExcel": true, "isHeavy": false}, {"id": "40824566-18ff-8130-86b1-f4247bbbe8a6", "actividad": "Reporte Semanal", "actColor": "purple", "archivo": "4-18-TX-0008-ACI-NA-NA-ZZZ-GE-14-ReporteSemanal116.xlsx", "descripcion": "Reporte Semanal N° 116 (Excel) - Formato de Valorización y Control", "fecha": "2025-02-17", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/c4f87e74-f162-40f9-b563-14f28052b28e/4-18-TX-0008-ACI-NA-NA-ZZZ-GE-14-ReporteSemanal116.xlsx?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=fbfdb6145059af1f8bd1b3fe29018db287f3f6ce7641d9af6ff85dec06ab747a&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Reporte-Semanal-N-116-Excel-Formato-de-Valorizaci-n-y-Control-4082456618ff813086b1f4247bbbe8a6", "ext": "xlsx", "isImage": false, "isPdf": false, "isExcel": true, "isHeavy": false}, {"id": "40824566-18ff-81c9-bd77-d13056604efc", "actividad": "Reporte Semanal", "actColor": "purple", "archivo": "4-18-TX-0008-ACI-NA-NA-ZZZ-GE-14-ReporteSemanal116.pdf", "descripcion": "Reporte Semanal N° 116 (PDF) - Subestación Pozuzo", "fecha": "2025-02-17", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/69ef051b-b950-4a9c-b79e-4e4b36ef8ccc/4-18-TX-0008-ACI-NA-NA-ZZZ-GE-14-ReporteSemanal116.pdf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=fd2a992e3d13b953f91d1391874c5335f63fc5bdb1a50b245d1cb3c2cdfd5215&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Reporte-Semanal-N-116-PDF-Subestaci-n-Pozuzo-4082456618ff81c9bd77d13056604efc", "ext": "pdf", "isImage": false, "isPdf": true, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-816f-99dd-d80cb417c8ee", "actividad": "Ortomosaico / Fotografía Aérea", "actColor": "pink", "archivo": "SE-POZUZO-13-09-24.jpg", "descripcion": "Ortomosaico SE Pozuzo (13-09-2024) - Fotografía Aérea Completa", "fecha": "2024-09-13", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/9e2ceac5-27ad-45b7-8bc0-86ab6fe47d0b/SE-POZUZO-13-09-24.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=bca39ce658a22b2147ef217fd2f48d0ea711de53efd0d1498b584d00b5f95505&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Ortomosaico-SE-Pozuzo-13-09-2024-Fotograf-a-A-rea-Completa-4082456618ff816f99ddd80cb417c8ee", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": true}, {"id": "40824566-18ff-8176-899c-dae45d81da3e", "actividad": "Eliminación de Material", "actColor": "red", "archivo": "PE-OXPO-SE-POZUZO-ELIMINACION-DE-MATERIAL_20240806_104432.jpg", "descripcion": "Eliminación de Material - Foto 04", "fecha": "2024-08-06", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/9e04e84c-1617-49c0-bb2f-0538061fe8fc/PE-OXPO-SE-POZUZO-ELIMINACION-DE-MATERIAL_20240806_104432.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=0935666a4990885701b8ea99a2a5542c1759c5d698b820b1aa56a00cd21a664c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Eliminaci-n-de-Material-Foto-04-4082456618ff8176899cdae45d81da3e", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-81ab-9f86-fde3ce5ee2c2", "actividad": "Eliminación de Material", "actColor": "red", "archivo": "PE-OXPO-SE-POZUZO-ELIMINACION-DE-MATERIAL_20240806_104152.jpg", "descripcion": "Eliminación de Material - Foto 03", "fecha": "2024-08-06", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/db65268c-e934-458e-bba5-b259ebb4aa21/PE-OXPO-SE-POZUZO-ELIMINACION-DE-MATERIAL_20240806_104152.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=a703d095b8543008800afd5abcaba943adaf249491a3f8f808d1cc93c62463af&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Eliminaci-n-de-Material-Foto-03-4082456618ff81ab9f86fde3ce5ee2c2", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-81be-b24e-f2875c1dd7c3", "actividad": "Eliminación de Material", "actColor": "red", "archivo": "PE-OXPO-SE-POZUZO-ELIMINACION-DE-MATERIAL_20240806_104103.jpg", "descripcion": "Eliminación de Material - Foto 02", "fecha": "2024-08-06", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/6aec6fe4-db27-4a4d-9efa-75eb9592bf92/PE-OXPO-SE-POZUZO-ELIMINACION-DE-MATERIAL_20240806_104103.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=88aa68bf7da4a9921b9f27fc4e44aec5af4ac342c32ea73dc4ba9c494d676298&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Eliminaci-n-de-Material-Foto-02-4082456618ff81beb24ef2875c1dd7c3", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-810d-aa02-cc6316f2078a", "actividad": "Eliminación de Material", "actColor": "red", "archivo": "PE-OXPO-SE-POZUZO-ELIMINACION-DE-MATERIAL_20240806_104044.jpg", "descripcion": "Eliminación de Material - Foto 01", "fecha": "2024-08-06", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/80dba857-7207-4a21-8229-1d6786fcee3a/PE-OXPO-SE-POZUZO-ELIMINACION-DE-MATERIAL_20240806_104044.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=952bb8886e97542f767a9109891edb4656c7a364d30a27c586ca447176577d29&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Eliminaci-n-de-Material-Foto-01-4082456618ff810daa02cc6316f2078a", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-81c4-845c-ed549c147377", "actividad": "DME-1", "actColor": "yellow", "archivo": "PE-OXPO-SE-POZUZO-DME-1_20240806_102101.jpg", "descripcion": "Depósito de Material Excedente DME-1 - Foto 02", "fecha": "2024-08-06", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/80366e1d-a953-407a-a97f-9f6ff49b0889/PE-OXPO-SE-POZUZO-DME-1_20240806_102101.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=cae998ecd1c430ae72506e9df6b9a250c96fcb391d0ae5fb6635fb6330e6b78c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Dep-sito-de-Material-Excedente-DME-1-Foto-02-4082456618ff81c4845ced549c147377", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-8102-b9bb-f4592bd61b92", "actividad": "DME-1", "actColor": "yellow", "archivo": "PE-OXPO-SE-POZUZO-DME-1_20240806_102014.jpg", "descripcion": "Depósito de Material Excedente DME-1 - Foto 01", "fecha": "2024-08-06", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/7bce6860-81b0-4575-b094-c8d7eee782e6/PE-OXPO-SE-POZUZO-DME-1_20240806_102014.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=5dfdbe9cfe12fcd36cf7e41ba8352bf3579fe21c03620f1d0d6e8a7e63468886&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Dep-sito-de-Material-Excedente-DME-1-Foto-01-4082456618ff8102b9bbf4592bd61b92", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-8146-b56f-f1d4ba301b13", "actividad": "Corte y Desbroce", "actColor": "green", "archivo": "PE-OXPO-SE-POZUZO-Corte-y-Desbroce-de-material_20240806_094116.jpg", "descripcion": "Corte y Desbroce de Material - Foto 03", "fecha": "2024-08-06", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/dc0fa7dd-74ee-4660-9bbb-38ac1109a2df/PE-OXPO-SE-POZUZO-Corte-y-Desbroce-de-material_20240806_094116.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=40a3522e62117ef3862efabee786b6efb826256893fe7debc592ecbea9484256&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Corte-y-Desbroce-de-Material-Foto-03-4082456618ff8146b56ff1d4ba301b13", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-8111-8fa1-cf1fb3b5a0fb", "actividad": "Corte y Desbroce", "actColor": "green", "archivo": "PE-OXPO-SE-POZUZO-Corte-y-Desbroce-de-material_20240806_093836.jpg", "descripcion": "Corte y Desbroce de Material - Foto 02", "fecha": "2024-08-06", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/933e1c38-f2b1-40e3-a221-88a58a3f1a8f/PE-OXPO-SE-POZUZO-Corte-y-Desbroce-de-material_20240806_093836.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=628d58da191337bcf0e8ccc4782d17edf9bd3a914d8a974c077baf330fc3c80c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Corte-y-Desbroce-de-Material-Foto-02-4082456618ff81118fa1cf1fb3b5a0fb", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-817e-bc09-d91ce9773322", "actividad": "Corte y Desbroce", "actColor": "green", "archivo": "PE-OXPO-SE-POZUZO-Corte-y-Desbroce-de-material_20240806_093629.jpg", "descripcion": "Corte y Desbroce de Material - Foto 01", "fecha": "2024-08-06", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/a67d6f93-269b-4eab-8cd1-e6496b96a54b/PE-OXPO-SE-POZUZO-Corte-y-Desbroce-de-material_20240806_093629.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=14c94894dd4c3719da4770b0565c1ecf1f1aac2c3d09f365bd380670f1791207&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Corte-y-Desbroce-de-Material-Foto-01-4082456618ff817ebc09d91ce9773322", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-8179-ab86-d458485067a4", "actividad": "Cartel de Obra", "actColor": "blue", "archivo": "PE-OXPO-SE-POZUZO-Cartel-de-Obra_20240803_130456.jpg", "descripcion": "Cartel de Obra - Foto 03", "fecha": "2024-08-03", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/7a1de584-906d-4347-82b1-cd1c3b9ac80d/PE-OXPO-SE-POZUZO-Cartel-de-Obra_20240803_130456.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=474f8a17e1b4d448a96b6c2eb9a399e7dc13fdbe7f628c3b60fda76a7a6b2012&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Cartel-de-Obra-Foto-03-4082456618ff8179ab86d458485067a4", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-81ec-89f2-f7fbcb46aa1a", "actividad": "Cartel de Obra", "actColor": "blue", "archivo": "PE-OXPO-SE-POZUZO-Cartel-de-Obra_20240803_130435.jpg", "descripcion": "Cartel de Obra - Foto 02", "fecha": "2024-08-03", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/1af889ae-46d5-4b04-96a3-7a8877e69f21/PE-OXPO-SE-POZUZO-Cartel-de-Obra_20240803_130435.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=e513962d4f725c951bc14b97d313ba36e27183d0c50c1860c50ed5a25ca83165&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Cartel-de-Obra-Foto-02-4082456618ff81ec89f2f7fbcb46aa1a", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}, {"id": "40824566-18ff-8168-b272-fe2a64f26c78", "actividad": "Cartel de Obra", "actColor": "blue", "archivo": "PE-OXPO-SE-POZUZO-Cartel-de-Obra_20240803_130412.jpg", "descripcion": "Cartel de Obra - Foto 01", "fecha": "2024-08-03", "fileUrl": "https://prod-files-secure.s3.us-west-2.amazonaws.com/de8fb448-39b0-4ee8-bc73-827eb866917f/b30483db-6206-4114-ae8d-7bbcf477b792/PE-OXPO-SE-POZUZO-Cartel-de-Obra_20240803_130412.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466Y5JW3BTM%2F20261029%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261029T083636Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEwaCXVzLXdlc3QtMiJHMEUCIQDlfthvjgx3kL7KwdeK6S%2Bg19DHAn%2FTVJ4oTDmNnTRC2QIgaUtbERutYPp9NfmXEHcHR8hbyKx7mm1%2FpvnwYczg4tYq%2FwMIFRAAGgw2Mzc0MjMxODM4MDUiDJob86gA8tPSYQk6PircA5tETkUcU96xNHDGsSlK799jr%2BGr2rU2XncFJjh8YSZaA%2BTD2DaT1B%2BbO2CDoMNeyPZeF03lc3iH%2Bag0YKP%2FwUzdQEVKJx5OiBctLCTi6tH%2Fk%2FXoLbq0UJr%2Fm2HG22c0s37gr0pr49AprIILNERBYwrtCOB1QQndIV0SrJpxk%2FvVYIuw2MAbdt0inrPKFA6xYZIewaC3CKgk1rrS913VmYhSL3mrql%2B1UMOJfieMphn%2B681cZ6gkJuvkZ7X2n2KBI5OUjYVPPbzPlYvHyrDiNNPy5%2B4At%2FR1A81c8H2k7kLXGf9okVg9WtA0HXL8%2BlWyA3I%2FkvrM6w966xu7oWwgr9g18A%2Btt9exmKPzDoaLtasyfr73pPRqlpQx3LYbhcyDnHy3QxDftI%2B6XZ0PnXztspEmqbjQFHrEZNa%2BzLg0UoiXfkoambNZpis2D9Uq0KtQrPbodxMWOzD1E0gtdLPg52pahR84AgSDeTlN7HGwKu9r3DU1wC3ytLynt6EbnRzA5yV32c2vGOuF5NdL4Yz9emLGn82%2B1iJ3ULIdUbQJaCoK%2FZAdLwo55JVJRfgxdhDrD64exHSVdn3Rp19sXG570lg8T8ipUbNKJlwV771WTzFY8KR9a3UTzkG%2Bd9cSMMuBi9cGOqUBUAliHeUc%2F0GybARTZaba3HsOwWExM1JBCcdICqpoc6T2NfXTVdhcjqxlr48hYcfi%2BaL%2BxL9mzRkXDvl6fbpg2du1L8D58bKcQKX6VnA7KpyjfE37ttPy5lEPb6D8ztFj5bGxT271Wam5W6mt6j4fcboEbqB3csgsnd5NWCMsRA0%2B7WjURL6lTScyhhERBOUueXj3fXa0lp2oPGjskjWMtJCygqiP&X-Amz-Signature=3f127a0ae4bb4e4d03780f19c188209e1f78e686dac366bc9efc88cc0aa1acc4&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "notionUrl": "https://app.notion.com/p/Cartel-de-Obra-Foto-01-4082456618ff8168b272fe2a64f26c78", "ext": "jpg", "isImage": true, "isPdf": false, "isExcel": false, "isHeavy": false}];
+    let currentView = 'grid';
+    let cardFitMode = 'contain';  // 'contain' = imagen completa | 'cover' = llenar recuadro
+    let modalFitMode = 'contain';
+
+    function getBadgeClass(act) {
+      if (!act) return 'badge-gray';
+      if (act.includes('Cartel')) return 'badge-amber';
+      if (act.includes('DME') || act.includes('Desbroce')) return 'badge-green';
+      if (act.includes('Eliminación')) return 'badge-purple';
+      if (act.includes('Reporte') || act.includes('Avance')) return 'badge-blue';
+      return 'badge-gray';
+    }
+
+    function updateMetrics() {
+      document.getElementById('metric-total').textContent = records.length;
+      document.getElementById('metric-photos').textContent = records.filter(r => r.isImage).length;
+      document.getElementById('metric-docs').textContent = records.filter(r => r.isPdf || r.isExcel).length;
+    }
+
+    function populateActivityFilter() {
+      const select = document.getElementById('activity-filter');
+      const current = select.value;
+      const acts = Array.from(new Set(records.map(r => r.actividad))).filter(Boolean).sort();
+      select.innerHTML = '<option value="ALL">Todas las Actividades</option>';
+      acts.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a;
+        opt.textContent = a;
+        select.appendChild(opt);
+      });
+      if (acts.includes(current)) select.value = current;
+    }
+
+    // ALTERNAR MODO ENCUADRE DE TARJETAS (IMAGEN COMPLETA vs LLENAR RECUADRO)
+    function setCardFit(mode) {
+      cardFitMode = mode;
+      document.getElementById('btn-fit-contain').classList.toggle('active', mode === 'contain');
+      document.getElementById('btn-fit-cover').classList.toggle('active', mode === 'cover');
+      
+      const grid = document.getElementById('cards-container');
+      grid.classList.toggle('mode-contain', mode === 'contain');
+      grid.classList.toggle('mode-cover', mode === 'cover');
+    }
+
+    // ALTERNAR MODO ENCUADRE DENTRO DEL MODAL (IMAGEN COMPLETA vs OCUPAR TODO EL RECUADRO)
+    function setModalFit(mode) {
+      modalFitMode = mode;
+      document.getElementById('modal-btn-contain').classList.toggle('active', mode === 'contain');
+      document.getElementById('modal-btn-cover').classList.toggle('active', mode === 'cover');
+      
+      const stage = document.getElementById('modal-stage');
+      stage.classList.toggle('fit-contain', mode === 'contain');
+      stage.classList.toggle('fit-cover', mode === 'cover');
+    }
+
+    // PANTALLA COMPLETA NATIVA DEL NAVEGADOR
+    function toggleFullscreen() {
+      const elem = document.getElementById('modal');
+      if (!document.fullscreenElement) {
+        elem.requestFullscreen().catch(err => {
+          console.warn('Fullscreen no disponible:', err);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function renderCards(filtered) {
+      const container = document.getElementById('cards-container');
+      container.innerHTML = '';
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">No se encontraron registros.</div>';
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+
+      filtered.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'file-card';
+
+        let previewHtml = '';
+        if (r.isHeavy) {
+          previewHtml = `<div class="card-preview" onclick="openModal('${r.fileUrl}', '${r.archivo}')">
+            <span class="heavy-badge">Ortomosaico 52.9 MB</span>
+            <div class="doc-placeholder aerial">
+              <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+              <span style="font-size:0.75rem; font-weight:600; color:#38BDF8;">Fotografía Aérea HD (Click para ver)</span>
+            </div>
+            <span class="view-hint">🔍 Click para ampliar</span>
+          </div>`;
+        } else if (r.isImage && r.fileUrl) {
+          previewHtml = `<div class="card-preview" onclick="openModal('${r.fileUrl}', '${r.archivo}')">
+            <img src="${r.fileUrl}" alt="${r.archivo}" loading="lazy" decoding="async">
+            <span class="view-hint">🔍 Ampliar</span>
+          </div>`;
+        } else if (r.isPdf) {
+          previewHtml = `<div class="card-preview" onclick="window.open('${r.fileUrl}', '_blank')">
+            <div class="doc-placeholder pdf">
+              <svg fill="currentColor" viewBox="0 0 24 24"><path d="M7 2v20h10V8l-6-6H7zm8 7V3.5L18.5 7H15zM9 13h2c.55 0 1 .45 1 1v1c0 .55-.45 1-1 1H9v2H8v-6h3c.55 0 1 .45 1 1zm1 2h1v-1h-1v1zm4-2h1.5c.83 0 1.5.67 1.5 1.5v3c0 .83-.67 1.5-1.5 1.5H14v-6zm1 5h.5c.28 0 .5-.22.5-.5v-3c0-.28-.22-.5-.5-.5H15v4z"/></svg>
+              <span style="font-size:0.75rem; font-weight:600;">Documento PDF</span>
+            </div>
+          </div>`;
+        } else {
+          previewHtml = `<div class="card-preview" onclick="window.open('${r.fileUrl}', '_blank')">
+            <div class="doc-placeholder excel">
+              <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H9v-2h3v2zm0-4H9v-2h3v2zm0-4H9V7h3v2zm5 8h-3v-2h3v2zm0-4h-3v-2h3v2zm0-4h-3V7h3v2z"/></svg>
+              <span style="font-size:0.75rem; font-weight:600;">Planilla Excel</span>
+            </div>
+          </div>`;
+        }
+
+        card.innerHTML = `
+          ${previewHtml}
+          <div class="card-body">
+            <div class="card-meta">
+              <span>${r.fecha || 'Sin fecha'}</span>
+              <span class="badge ${getBadgeClass(r.actividad)}">${r.actividad}</span>
+            </div>
+            <div class="card-title" title="${r.descripcion}">${r.descripcion || r.archivo}</div>
+            <div class="card-filename" title="${r.archivo}">${r.archivo}</div>
+            <div class="card-footer">
+              <a href="${r.fileUrl}" target="_blank" class="btn btn-sm btn-outline" download>
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Descargar S3
+              </a>
+              <a href="${r.notionUrl}" target="_blank" class="btn btn-sm btn-outline" title="Ver en Notion">
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Notion
+              </a>
+            </div>
+          </div>
+        `;
+        fragment.appendChild(card);
+      });
+
+      container.appendChild(fragment);
+    }
+
+    function renderTable(filtered) {
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">Sin registros</td></tr>';
+        return;
+      }
+      const fragment = document.createDocumentFragment();
+      filtered.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        let mini = '';
+        if (r.isHeavy) {
+          mini = `<div class="doc-mini" style="color: #38BDF8; font-size:0.6rem; cursor:pointer;" onclick="openModal('${r.fileUrl}', '${r.archivo}')">52MB</div>`;
+        } else if (r.isImage && r.fileUrl) {
+          mini = `<img src="${r.fileUrl}" class="thumb-mini" loading="lazy" decoding="async" onclick="openModal('${r.fileUrl}', '${r.archivo}')" title="Click para ver imagen completa">`;
+        } else if (r.isPdf) {
+          mini = `<div class="doc-mini" style="color: #DC2626;">PDF</div>`;
+        } else {
+          mini = `<div class="doc-mini" style="color: #16A34A;">XLS</div>`;
+        }
+
+        tr.innerHTML = `
+          <td><strong>${idx + 1}</strong></td>
+          <td>${mini}</td>
+          <td>${r.fecha || '-'}</td>
+          <td><span class="badge ${getBadgeClass(r.actividad)}">${r.actividad}</span></td>
+          <td style="font-family: Consolas, monospace; font-size: 0.8rem;">${r.archivo}</td>
+          <td>${r.descripcion || '-'}</td>
+          <td style="text-align: center;">
+            <div style="display: flex; gap: 4px; justify-content: center;">
+              <a href="${r.fileUrl}" target="_blank" class="btn btn-sm btn-primary" download style="padding: 3px 6px; font-size: 0.72rem;">Descargar S3</a>
+              <a href="${r.notionUrl}" target="_blank" class="btn btn-sm btn-outline" style="padding: 3px 6px; font-size: 0.72rem;">Notion</a>
+            </div>
+          </td>
+        `;
+        fragment.appendChild(tr);
+      });
+      tbody.appendChild(fragment);
+    }
+
+    function applyFilters() {
+      const q = document.getElementById('search-input').value.toLowerCase().trim();
+      const act = document.getElementById('activity-filter').value;
+      const filtered = records.filter(r => {
+        const matchQ = !q || r.archivo.toLowerCase().includes(q) || 
+                              r.descripcion.toLowerCase().includes(q) || 
+                              r.actividad.toLowerCase().includes(q);
+        const matchAct = act === 'ALL' || r.actividad === act;
+        return matchQ && matchAct;
+      });
+      document.getElementById('filtered-count').textContent = `Mostrando ${filtered.length} de ${records.length} registros`;
+      renderCards(filtered);
+      renderTable(filtered);
+    }
+
+    function switchView(view) {
+      currentView = view;
+      document.getElementById('btn-grid').classList.toggle('active', view === 'grid');
+      document.getElementById('btn-table').classList.toggle('active', view === 'table');
+      document.getElementById('cards-container').style.display = view === 'grid' ? 'grid' : 'none';
+      document.getElementById('table-container').style.display = view === 'table' ? 'block' : 'none';
+    }
+
+    async function syncNotionData() {
+      const btn = document.getElementById('btn-sync');
+      const btnText = document.getElementById('btn-text');
+      btn.disabled = true;
+      btnText.textContent = 'Consultando Notion API...';
+
+      try {
+        const response = await fetch(`https://api.notion.com/v1/databases/${DATABASE_ID}/query`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${NOTION_API_KEY}`,
+            'Notion-Version': '2022-06-28',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ page_size: 100 })
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const results = data.results || [];
+
+        records = results.map(p => {
+          const props = p.properties || {};
+          const act = props.Actividad?.select || {};
+          const arch = props.Archivo?.rich_text || [];
+          const archText = arch[0]?.plain_text || '';
+          const desc = props['Descripción']?.title || [];
+          const descText = desc[0]?.plain_text || '';
+          const fec = props.Fecha?.date || {};
+          const files = props.Foto?.files || [];
+          const fileObj = files.length > 0 ? files[0] : null;
+          const fileUrl = fileObj?.file?.url || '';
+          const fileName = fileObj?.name || '';
+
+          let displayName = archText;
+          if (fileName && (!archText || !archText.includes('.'))) {
+            displayName = fileName;
+          } else if (!displayName) {
+            displayName = fileName || 'Archivo';
+          }
+
+          const ext = displayName.includes('.') ? displayName.split('.').pop().toLowerCase() : '';
+          const isHeavy = displayName.includes('SE-POZUZO-13-09-24');
+          const isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext) || (fileUrl && /\.(jpg|jpeg|png|webp)/i.test(fileUrl));
+          const isPdf = ext === 'pdf' || (fileUrl && fileUrl.includes('.pdf'));
+          const isExcel = ['xlsx', 'xls', 'csv'].includes(ext) || (fileUrl && /\.(xlsx|xls|csv)/i.test(fileUrl));
+
+          return {
+            id: p.id,
+            actividad: act.name || 'General',
+            actColor: act.color || 'default',
+            archivo: displayName,
+            descripcion: descText || displayName,
+            fecha: fec.start || '',
+            fileUrl: fileUrl,
+            notionUrl: p.url || '',
+            ext: ext || (isImage ? 'jpg' : 'doc'),
+            isImage: isImage,
+            isPdf: isPdf,
+            isExcel: isExcel,
+            isHeavy: isHeavy
+          };
+        });
+
+        records.sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '') || a.archivo.localeCompare(b.archivo));
+        const now = new Date();
+        document.getElementById('sync-timestamp').textContent = `Actualizado a las ${now.toLocaleTimeString('es-PE')} (${records.length} registros)`;
+        updateMetrics();
+        populateActivityFilter();
+        applyFilters();
+
+      } catch (err) {
+        if (window.location.protocol === 'file:') {
+          alert("Aviso:\n\nAl abrir como 'file:///', el navegador restringe consultas de red.\n\nPara actualizar en caliente sin límites, haga doble clic en 'iniciar_servidor_tiempo_real.bat' (http://localhost:8085).");
+        } else {
+          alert(`Error al sincronizar: ${err.message}`);
+        }
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = 'Actualizar en Tiempo Real';
+      }
+    }
+
+    // ABRIR MODAL
+    function openModal(url, title) {
+      const modal = document.getElementById('modal');
+      const img = document.getElementById('modal-img');
+      img.src = url;
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-download').href = url;
+      
+      // Respetar modo actual o default a imagen completa
+      setModalFit(modalFitMode);
+      modal.classList.add('active');
+    }
+
+    function closeModal(e) {
+      if (e.target.id === 'modal') {
+        closeModalDirect();
+      }
+    }
+
+    function closeModalDirect() {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+      document.getElementById('modal').classList.remove('active');
+      document.getElementById('modal-img').src = '';
+    }
+
+    // Tecla Escape para cerrar
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModalDirect();
+    });
+
+    updateMetrics();
+    populateActivityFilter();
+    applyFilters();
+  </script>
+</body>
+</html>
